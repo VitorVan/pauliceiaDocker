@@ -1,0 +1,117 @@
+version: "3"
+
+services:
+  # TODO: config environment variables
+  pauliceia_front:
+    container_name: pauliceia_front
+    build:
+      context: ./pauliceia_front
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./pauliceia_front/config/dev.env.js:/app/pauliceia_front/config/dev.env.js
+    networks:
+      - frontend
+      - backend
+
+  # TODO: config environment variables
+  geocoding_api:
+    container_name: geocoding_api
+    build:
+      context: ./geocoding_api
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./geocoding_api:/app/geocoding_api
+      - ignore:/app/geocoding_api/node_modules/
+    depends_on:
+      - database
+    networks:
+      - backend
+      - postgres
+
+  database:
+    container_name: database
+    image: postgis/postgis:11-3.3
+    restart: "no"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=pauliceia
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - postgres
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "vitor.vanjura@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "123456"
+    ports:
+      - "16543:80"
+    depends_on:
+      - database
+    networks:
+      - postgres
+
+  geoserver:
+    container_name: geoserver
+    image: kartoza/geoserver:2.19.2
+    volumes:
+      - ./volumes/geoserver/geoserverdata:/opt/geoserver/data_dir
+    #   folder where raster files are
+    #   - ${GEOSERVER_FILES_DIR}:/home/geoserveruser/files
+    # env_file:
+    #   - ./env_files/geoserver.env
+    ports:
+      - 8001:8080
+    # healthcheck:
+    #   test: curl --fail -s http://localhost:8080/ || exit 1
+    #   interval: 1m30s
+    #   timeout: 10s
+    #   retries: 3
+    networks:
+      - postgres
+      - backend
+    depends_on:
+      - database
+
+  # TODO: config environment variables
+  geoserver_rest:
+    container_name: geoserver_rest
+    build:
+      context: ./geoserver_rest
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./geoserver_rest:/app/geoserver_rest
+    depends_on:
+      - geoserver
+    networks:
+      - postgres
+      - backend
+
+networks:
+  postgres:
+    driver: bridge
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  ignore:

@@ -1,0 +1,16 @@
+<layer>
+  <name>layer_1005</name>
+  <id>LayerInfoImpl-2359b4ed:18c036b29a6:-7ff3</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl-16281edb:18c02a9c06d:-7ffe</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl-2359b4ed:18c036b29a6:-7ff4</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2023-11-24 22:23:19.495 UTC</dateCreated>
+</layer>
